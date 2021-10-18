@@ -1,0 +1,14 @@
+#%RAML 1.0 Trait
+displayName: pageable
+usage: Apply this trait to a GET method that supports pagination.
+queryParameters: 
+  offset: 
+    type: integer
+    required: false
+    default: 10
+    minimum: 0
+  limit: 
+    type: integer
+    required: false
+    default: 50
+    minimum: 1

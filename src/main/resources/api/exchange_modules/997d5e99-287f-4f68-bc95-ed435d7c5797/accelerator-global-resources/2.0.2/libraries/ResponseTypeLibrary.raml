@@ -1,0 +1,33 @@
+#%RAML 1.0 Library
+usage: This library provides some common response message structures for APIs
+types:
+  ResponseStatus:
+    description: Represents the overall status of the operation
+    enum: [ SUCCESS, WARNING, ERROR ]
+    example: SUCCESS
+  ResultParameter:
+    description: Represents an arbitrary name/value pair for returning extended response data
+    properties:
+      paramName: string
+      paramValue: string
+    example:
+      paramName: AccountId
+      paramValue: "123456"
+  ResultMessage:
+    description: Represents a single message to be included in the response
+    type: object
+    properties:
+      severity:
+        description: Indicates the severity of this particular message item
+        enum: [ INFO, WARNING, ERROR ]
+      code: string
+      message?: string
+      parameters?: ResultParameter[]
+    example: !include ../examples/ReturnResultMessage.raml
+  BasicResponse:
+    description: Represents a basic response structure that can be returned by APIs to indicate status and result messages
+    properties:
+      responseStatus: ResponseStatus
+      resultMessages: ResultMessage[]
+    example: !include ../examples/ReturnBasicResponse.raml
+    

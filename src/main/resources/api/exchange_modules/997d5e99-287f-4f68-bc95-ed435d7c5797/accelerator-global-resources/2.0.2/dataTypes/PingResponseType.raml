@@ -1,0 +1,40 @@
+#%RAML 1.0 DataType
+displayName: PingResponseType
+description: Standard response structure for API health checks
+properties:
+  status:
+    description: Status of the API, including system connectivity states (attempting to recover one or more connections or at least one has gone completely offline)
+    type: string
+    enum: [ "OK", "RECOVERY", "OFFLINE" ]
+  apiName:
+    description: Asset name of the API returning the response
+    type: string
+    maxLength: 128
+  apiVersion: 
+    description: Complete version of the API returning the response (format is major.minor.patch)
+    type: string
+    minLength: 5
+    maxLength: 11
+  timestamp:
+    type: datetime
+  dependencies?:
+    description: Optional list of connections this API is dependent upon
+    type: array
+    items:
+      properties:
+        name: 
+          description: Logical name of the dependency
+          type: string
+        status:
+          description: Status of the connection to this dependency (able to connect, not able to connect, dependency returned an error)
+          type: string
+          enum: [ "UP", "DOWN", "ERROR" ]
+
+example:
+  status: "OK"
+  apiName: "accelerator-salesforce-sys-api"
+  apiVersion: "1.3.0"
+  timestamp: "2020-08-01T13:15:25.000Z"
+  dependencies:
+    - name: "Salesforce"
+      status: "UP"

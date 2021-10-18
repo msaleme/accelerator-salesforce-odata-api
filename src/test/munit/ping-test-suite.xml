@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd">
+	<munit:config name="ping-test-suite.xml" />
+	<munit:test name="ping-test-suite_getHealthTest" doc:id="dd4a84cd-8914-4075-91d2-c41d0c32c546" description="Get Health Test">
+		<munit:execution >
+			<flow-ref doc:name="get:\ping:sfdc-odata-api-config" doc:id="d6eeade0-b86b-4ee5-9b27-efaae5ba4136" name="get:\ping:sfdc-odata-api-config"/>
+		</munit:execution>
+		<munit:validation>
+			<munit-tools:assert-equals doc:name="Assert 200 Response" doc:id="b9ae373e-c19d-4906-868b-6c057304d9ea" actual="#[vars.httpStatus]" expected="200" message="Expected success response"/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="ping-test-suite_getHealthWithDependenciesTest" doc:id="4edbbcbc-4aed-483f-8562-3579c56c5e09" description="Get Health With Dependencies Test">
+		<munit:execution >
+			<munit:set-event doc:name="Set Query Param" doc:id="d89a16d5-8060-463d-96b0-3fa0c824244b" >
+				<munit:attributes value='#[{ queryParams: { checkDependencies: "true" }}]' />
+			</munit:set-event>
+			<flow-ref doc:name="get:\ping:sfdc-odata-api-config" doc:id="83adf707-1ccf-411b-bc91-a210c8d08861" name="get:\ping:sfdc-odata-api-config"/>
+		</munit:execution>
+		<munit:validation>
+			<munit-tools:assert-equals doc:name="Assert 200 Response" doc:id="d69b684f-9193-43b4-bca3-9c7b0b97ed4b" actual="#[vars.httpStatus]" expected="200" message="Expected success response"/>
+			<munit-tools:assert-that doc:name="Assert Has Dependencies" doc:id="d63602bc-cef3-4d09-8845-6cc762f7739d" expression="#[payload.dependencies]" is="#[MunitTools::notNullValue()]"/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="ping-test-suite_getHealthBadParamTest" doc:id="a724ee62-e42d-456c-bbfd-667b871fe673" description="Get Health Bad Param Test">
+		<munit:execution >
+			<munit:set-event doc:name="Set Query Param" doc:id="5fbf7f32-f4fc-4997-ad0d-7463c875878c" >
+				<munit:attributes value='#[{ queryParams: { checkDependencies: "true-ish" }}]' />
+			</munit:set-event>
+			<flow-ref doc:name="get:\ping:sfdc-odata-api-config" doc:id="c4864c10-708f-4a35-8cb6-27b680fc9a7e" name="get:\ping:sfdc-odata-api-config"/>
+		</munit:execution>
+		<munit:validation>
+			<munit-tools:assert-equals doc:name="Assert 200 Response" doc:id="2b842ffb-2ece-4348-8295-68c718d9d83d" actual="#[vars.httpStatus]" expected="200" message="Expected success response"/>
+			<munit-tools:assert-that doc:name="Assert No Dependencies" doc:id="6742f35f-7d25-4170-936e-afb557b3c916" expression="#[payload.dependencies]" is="#[MunitTools::nullValue()]"/>
+		</munit:validation>
+	</munit:test>
+</mule>

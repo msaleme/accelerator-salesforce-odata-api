@@ -1,0 +1,475 @@
+{
+	"info": {
+		"_postman_id": "83ca42cf-bba7-439e-b3b3-3cb32dd083bd",
+		"name": "accelerator-salesforce-odata-api",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Orders",
+			"item": [
+				{
+					"name": "Get Metadata",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Successful Get request\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://{{host_salesforce_odata_api}}/api/odata.svc/$metadata",
+							"protocol": "https",
+							"host": [
+								"{{host_salesforce_odata_api}}"
+							],
+							"path": [
+								"api",
+								"odata.svc",
+								"$metadata"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Orders",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Successful Get request\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://{{host_salesforce_odata_api}}/api/odata.svc/orders?$format=json&startDate=2019-07-01&endDate=2021-09-27&skip=1&top=5",
+							"protocol": "https",
+							"host": [
+								"{{host_salesforce_odata_api}}"
+							],
+							"path": [
+								"api",
+								"odata.svc",
+								"orders"
+							],
+							"query": [
+								{
+									"key": "$format",
+									"value": "json"
+								},
+								{
+									"key": "startDate",
+									"value": "2019-07-01"
+								},
+								{
+									"key": "endDate",
+									"value": "2021-09-27"
+								},
+								{
+									"key": "skip",
+									"value": "1"
+								},
+								{
+									"key": "top",
+									"value": "5"
+								},
+								{
+									"key": "select",
+									"value": "CUSTOMER_ID,SALES_ORDER_STATUS",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Customer Orders",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Successful Get request\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://{{host_salesforce_odata_api}}/api/odata.svc/orders('10013')?$format=json&startDate=2019-07-01&endDate=2021-09-27&top=5&skip=1",
+							"protocol": "https",
+							"host": [
+								"{{host_salesforce_odata_api}}"
+							],
+							"path": [
+								"api",
+								"odata.svc",
+								"orders('10013')"
+							],
+							"query": [
+								{
+									"key": "$format",
+									"value": "json"
+								},
+								{
+									"key": "startDate",
+									"value": "2019-07-01"
+								},
+								{
+									"key": "endDate",
+									"value": "2021-09-27"
+								},
+								{
+									"key": "top",
+									"value": "5"
+								},
+								{
+									"key": "skip",
+									"value": "1"
+								},
+								{
+									"key": "select",
+									"value": "CUSTOMER_ID,SALES_ORDER_STATUS",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Customer Orders-Invalid Customer",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Successful Get request\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([404]);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://{{host_salesforce_odata_api}}/api/odata.svc/orders('1')?$format=json&startDate=2019-07-01&endDate=2020-09-27&top=5&skip=20",
+							"protocol": "https",
+							"host": [
+								"{{host_salesforce_odata_api}}"
+							],
+							"path": [
+								"api",
+								"odata.svc",
+								"orders('1')"
+							],
+							"query": [
+								{
+									"key": "$format",
+									"value": "json"
+								},
+								{
+									"key": "startDate",
+									"value": "2019-07-01"
+								},
+								{
+									"key": "endDate",
+									"value": "2020-09-27"
+								},
+								{
+									"key": "top",
+									"value": "5"
+								},
+								{
+									"key": "skip",
+									"value": "20"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Post Orders",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Successful Get request\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([400]);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "https://{{host_salesforce_odata_api}}/api/odata.svc/orders",
+							"protocol": "https",
+							"host": [
+								"{{host_salesforce_odata_api}}"
+							],
+							"path": [
+								"api",
+								"odata.svc",
+								"orders"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Post Customer Orders",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Successful Get request\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([400]);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "https://{{host_salesforce_odata_api}}/api/odata.svc/orders('0033k00003DmdfZAAR')?$format=json&startDate=2019-07-01&endDate=2020-09-27&offLimit=5&totalLimit=20",
+							"protocol": "https",
+							"host": [
+								"{{host_salesforce_odata_api}}"
+							],
+							"path": [
+								"api",
+								"odata.svc",
+								"orders('0033k00003DmdfZAAR')"
+							],
+							"query": [
+								{
+									"key": "$format",
+									"value": "json"
+								},
+								{
+									"key": "startDate",
+									"value": "2019-07-01"
+								},
+								{
+									"key": "endDate",
+									"value": "2020-09-27"
+								},
+								{
+									"key": "offLimit",
+									"value": "5"
+								},
+								{
+									"key": "totalLimit",
+									"value": "20"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Ping",
+			"item": [
+				{
+					"name": "Query Health",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://{{host_salesforce_odata_api}}/api/ping",
+							"protocol": "https",
+							"host": [
+								"{{host_salesforce_odata_api}}"
+							],
+							"path": [
+								"api",
+								"ping"
+							]
+						},
+						"description": "Call ping operation with no parameters"
+					},
+					"response": []
+				},
+				{
+					"name": "Query Health with Dependencies",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://{{host_salesforce_odata_api}}/api/ping?checkDependencies=true",
+							"protocol": "https",
+							"host": [
+								"{{host_salesforce_odata_api}}"
+							],
+							"path": [
+								"api",
+								"ping"
+							],
+							"query": [
+								{
+									"key": "checkDependencies",
+									"value": "true",
+									"description": "Include health of dependencies"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Query Health with Invalid Parameter",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://{{host_salesforce_odata_api}}/api/ping?checkDependencies=true-ish",
+							"protocol": "https",
+							"host": [
+								"{{host_salesforce_odata_api}}"
+							],
+							"path": [
+								"api",
+								"ping"
+							],
+							"query": [
+								{
+									"key": "checkDependencies",
+									"value": "true-ish",
+									"description": "Should not return dependencies"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "basic",
+		"basic": [
+			{
+				"key": "password",
+				"value": "{{accelerator_app_client_secret}}",
+				"type": "string"
+			},
+			{
+				"key": "username",
+				"value": "{{accelerator_app_client_id}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "host_salesforce_odata_api",
+			"value": "accel-salesforce-odata-api-v1-dev.ca-c1.cloudhub.io"
+		}
+	]
+}

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd">
+	<munit:config name="orders-bad-sql-test-suite.xml" />
+	<munit:test name="orders-bad-request-test-suite-orders_get-ordersTest" doc:id="8a7238dd-38eb-4427-8414-6eb0d0518542" description="Test">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock OMS System API Call" doc:id="b22af7ce-0792-4550-9dc4-dbba08690b01" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="GET" attributeName="method" />
+					<munit-tools:with-attribute whereValue="Get orders by CustomerId" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="oms-sys-api-httpRequestConfig" attributeName="config-ref" />
+					<munit-tools:with-attribute whereValue="/customers/{customerID}/orders" attributeName="path" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="HTTP:CONNECTIVITY" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<munit:set-event doc:name="Set Event" doc:id="15f191dd-9fcf-4304-984a-42ca9b61fb28" >
+				<munit:attributes value="#[{queryParams : {'format' : 'json','startDate':'2019-07-02','endDate':'2020-09-28','offLimit':'5','totalLimit':'20'},uriParams : {'CustomerId' :'10'}}]" />
+				<munit:variables >
+					<munit:variable key="httpStatus" value="400" />
+				</munit:variables>
+			</munit:set-event>
+			<flow-ref doc:name="get:\orders\(CustomerId):sfdc-odata-api-config" doc:id="5099f5f4-105d-4af7-8b06-16e45888e405" name="get:\orders\(CustomerId):sfdc-odata-api-config"/>
+		</munit:execution>
+		<munit:validation>
+			<munit-tools:assert-equals doc:name="Assert equals" doc:id="9d62da90-9499-47d2-ac1e-ba28effa20cb" actual="#[payload.errorCode]" expected="#['400']" message="BAD REQUEST ERROR"/>
+		</munit:validation>
+	</munit:test>
+
+</mule>

@@ -1,0 +1,67 @@
+#%RAML 1.0 Library
+
+uses:
+  odata: ../libraries/odataLibrary.raml
+
+types:
+  orders:
+    (odata.remote): Orders
+    properties:
+      CUSTOMER_ID:
+        type: string
+        description: Unique customer identification number
+        (odata.key): false
+        (odata.nullable): false
+      SALES_ORDER_ID:
+        type: string
+        description: Unique Sale order number
+        (odata.nullable): false
+        (odata.key): true
+      ORDER_NUMBER:
+        type: string
+        description: Unique number assigned to this order and displayed to end users.
+        (odata.nullable): true
+        (odata.key): false
+        required: false
+      SALES_ORDER_TYPE:
+        type: string
+        description: The type of order. Change, Renewal or Amendment
+        (odata.nullable): true
+        (odata.key): false
+        required: false
+      ORIGINAL_ORDER:
+        type: string
+        description: Reference to the parent order. Needed for reship, exchange and even swap orders
+        (odata.nullable): true
+        (odata.key): false
+        required: false
+      SALES_ORDER_STATUS:
+        type: string
+        description: Current order status e.g Draft, Read for Review, Placed, Read for Activation, Activated
+        (odata.nullable): true
+        (odata.key): false
+        required: false
+      ORDER_START_DATE:
+        type: date-only
+        description: Date at which the order becomes effective. For subscription-type orders, this would be the date when the subscription begins.
+        (odata.nullable): true
+        (odata.key): false
+        required: false
+      ORDER_END_DATE:
+        type: date-only
+        description: Date at which the order ends. For subscription-type orders, this would be the date when the subscription ends.
+        (odata.nullable): true
+        (odata.key): false
+        required: false
+      PROMISE_DATE:
+        type: date-only
+        description: Date the promise of the order would be fulfilled
+        (odata.nullable): true
+        (odata.key): false
+        required: false
+      FILE_DATE:
+        type: date-only
+        description: Date the order was filed
+        (odata.nullable): true
+        (odata.key): false
+        required: false

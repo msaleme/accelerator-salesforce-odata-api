@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:api-gateway="http://www.mulesoft.org/schema/mule/api-gateway"
+	xmlns:accelerator-retail="http://www.mulesoft.org/schema/mule/accelerator-retail"
+	xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit"
+	xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:json-logger="http://www.mulesoft.org/schema/mule/json-logger"
+	xmlns:secure-properties="http://www.mulesoft.org/schema/mule/secure-properties"
+	xmlns:wsc="http://www.mulesoft.org/schema/mule/wsc"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation=" http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd  http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/api-gateway http://www.mulesoft.org/schema/mule/api-gateway/current/mule-api-gateway.xsd http://www.mulesoft.org/schema/mule/wsc http://www.mulesoft.org/schema/mule/wsc/current/mule-wsc.xsd http://www.mulesoft.org/schema/mule/secure-properties http://www.mulesoft.org/schema/mule/secure-properties/current/mule-secure-properties.xsd http://www.mulesoft.org/schema/mule/json-logger http://www.mulesoft.org/schema/mule/json-logger/current/mule-json-logger.xsd http://www.mulesoft.org/schema/mule/accelerator-retail http://www.mulesoft.org/schema/mule/accelerator-retail/current/mule-accelerator-retail.xsd">
+	<global-property doc:name="Global Property-mule.env"
+		doc:id="329f8ed3-aa13-43a2-822f-2ae86147e147" name="mule.env"
+		value="local" />
+	<global-property doc:name="Global Property-mule.key"
+		doc:id="60d6a074-bea6-4d64-9d57-3e6284f91202" name="mule.key"
+		value="Salesforce123456" />
+
+	<http:listener-config
+		name="sfdc-odata-api-httpListenerConfig">
+		<http:listener-connection
+			host="${https.host}"
+			port="${https.port}" protocol="HTTPS" tlsContext="common-selfsigned_tlsContext"/>
+	</http:listener-config>
+	<apikit:config name="sfdc-odata-api-config"
+		api="api/accelerator-salesforce-odata-api.raml"
+		outboundHeadersMapName="outboundHeaders"
+		httpStatusVarName="httpStatus" />
+	<configuration-properties doc:name="mule-env"
+		doc:id="334b3b00-e34a-4a7d-b95a-07505fa8c8ba"
+		file="config/config-${mule.env}.yaml" />
+	<configuration doc:name="global-error-handler"
+		doc:id="bba85b5e-b628-435f-9628-dc21e1a5962b"
+		defaultErrorHandler-ref="error-handler_common" />
+	<!-- <api-gateway:autodiscovery apiId="${api.autodiscoveryID}" doc:name="API 
+		Autodiscovery" doc:id="2eac590e-2a32-450a-854d-2ed1a70703d0" flowRef="sfdc-odata-api_main" 
+		/> -->
+	<secure-properties:config
+		name="secure-propertiesConfig" doc:name="secure-properties"
+		doc:id="830ccf8a-9bde-4ea2-910e-8db9161d1754"
+		file="config/config-secured-${mule.env}.yaml" key="${mule.key}" />
+	<import doc:name="common-configuration"
+		doc:id="5127b73e-dab7-46e2-a812-1d8ae7f2323b" file="global-common.xml" />
+	<import doc:name="global-exception"
+		doc:id="4127208a-83c5-4ede-9966-c0acbc538c8f"
+		file="common-error-handler.xml" />
+	<http:request-config
+		name="oms-sys-api-httpRequestConfig" doc:name="oms-sys-api-http-req"
+		doc:id="fe5a4b62-d6c5-4705-a8a3-5a9c4a20655f"
+		basePath="${oms-sys-api.base-path}">
+		<http:request-connection
+			host="${oms-sys-api.host}" port="${oms-sys-api.port}"
+			connectionIdleTimeout="${oms-sys-api.connection-idle-timeout}" protocol="HTTPS">
+			<reconnection>
+				<reconnect frequency="${oms-sys-api.http-frequency}"
+					count="${oms-sys-api.http-reconnection-attempts}" />
+			</reconnection>
+			<http:authentication>
+				<http:basic-authentication
+					username="${sfdc-odata-api.http-client.client-id}"
+					password="${sfdc-odata-api.http-client.client-secret}" />
+			</http:authentication>
+		</http:request-connection>
+	</http:request-config>
+	<accelerator-retail:config
+		name="accelerator-retail-config" doc:name="Accelerator Retail Config"
+		doc:id="35509435-b355-4ebe-a6dd-972a46daaf12" apiName="${api.name}"
+		apiVersion="${api.version}" />
+</mule>

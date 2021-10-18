@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd">
+	<munit:config name="orders-test-suite.xml" />
+	<munit:test name="orders-test-suite-get:\orders\(CustomerId):sfdc-odata-exp-api-configTest" doc:id="a62b5a72-ca5d-4fcb-8e7b-06515300752e" description="Test">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock OMS System API Call" doc:id="47d6ec67-7907-4d0b-9aa1-7eee2b8cf28f" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="GET" attributeName="method" />
+					<munit-tools:with-attribute whereValue="Get orders by CustomerId" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="oms-sys-api-httpRequestConfig" attributeName="config-ref" />
+					<munit-tools:with-attribute whereValue="/customers/{customerID}/orders" attributeName="path" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value='#[
+output application/json
+---
+(readUrl("classpath://sample_data/orders-response.json", "application/json"))
+
+]' mediaType="application/json" encoding="UTF-8" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<munit:set-event doc:name="Set Event" doc:id="d0295aa3-0c94-431a-90b0-719392fa38a8" >
+				<munit:attributes value="#[{queryParams : {'format' : 'json','startDate': '2019-07-02','endDate': '2020-09-28','select':'CUSTOMER_ID'},uriParams : {'CustomerId' :  '10'}}]" />
+				<munit:variables >
+					<munit:variable key="odata" value='{"keyNames":"SALES_ORDER_ID"}' mediaType="application/json" />
+				</munit:variables>
+			</munit:set-event>
+			<flow-ref doc:name="Flow-ref to get:\orders\(CustomerId):sfdc-odata-exp-api-config" doc:id="eea4a432-291e-478c-9682-20fbfd2559f2" name="get:\orders\(CustomerId):sfdc-odata-api-config"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert doc:name="Assert CUSTOMER_ID field" doc:id="b1195477-c94e-46fa-bbcf-7f690dd9f0f4" >
+				<munit-tools:that ><![CDATA[#[import * from dw::test::Asserts 
+ ---
+payload.entries[0] must haveKey("CUSTOMER_ID")]]]></munit-tools:that>
+			</munit-tools:assert>
+			<munit-tools:assert doc:name="Assert SALES_ORDER_ID field" doc:id="e6b77930-4de8-4087-843e-5e99fbe7e760" >
+				<munit-tools:that ><![CDATA[#[import * from dw::test::Asserts 
+ ---
+payload.entries[0] must haveKey("SALES_ORDER_ID")]]]></munit-tools:that>
+			</munit-tools:assert>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="orders-test-suite-get:\orders:sfdc-odata-exp-api-configTest" doc:id="824910a3-cefe-4ea5-ac39-2cd93df63de6" description="Test">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock OMS System API Call" doc:id="f28912af-3903-4521-b90c-12765ec5ecd8" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="GET" attributeName="method" />
+					<munit-tools:with-attribute whereValue="Get orders" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="oms-sys-api-httpRequestConfig" attributeName="config-ref" />
+					<munit-tools:with-attribute whereValue="/orders" attributeName="path" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value='#[
+output application/json
+---
+(readUrl("classpath://sample_data/orders-response.json", "application/json"))
+
+]' mediaType="application/json" encoding="UTF-8" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<munit:set-event doc:name="Set Event" doc:id="f6cc5d2f-a6e5-4403-a977-82d1cdbfca89" >
+				<munit:attributes value="#[{queryParams : {'format' : 'json','startDate': '2019-07-02','endDate': '2020-09-28','select':'CUSTOMER_ID','skip':'20','top':'10'}}]" />
+				<munit:variables >
+					<munit:variable key="odata" value='{"keyNames":"SALES_ORDER_ID"}' mediaType="application/json" />
+				</munit:variables>
+			</munit:set-event>
+			<flow-ref doc:name="Flow-ref to get:\orders:sfdc-odata-api-config" doc:id="58a1ce6f-3854-4a70-988b-3332d3bdc6ff" name="get:\orders:sfdc-odata-api-config"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert doc:name="Assert CUSTOMER_ID field" doc:id="b4b1aa57-7077-4c69-b0f3-478934617c39" >
+				<munit-tools:that ><![CDATA[#[import * from dw::test::Asserts 
+ ---
+payload.entries[0] must haveKey("CUSTOMER_ID")]]]></munit-tools:that>
+			</munit-tools:assert>
+			<munit-tools:assert doc:name="Assert SALES_ORDER_ID field" doc:id="e43b7c96-99eb-4fd2-9b0c-18eeedcf0a22" >
+				<munit-tools:that ><![CDATA[#[import * from dw::test::Asserts 
+ ---
+payload.entries[0] must haveKey("SALES_ORDER_ID")]]]></munit-tools:that>
+			</munit-tools:assert>
+		</munit:validation>
+	</munit:test>
+
+</mule>

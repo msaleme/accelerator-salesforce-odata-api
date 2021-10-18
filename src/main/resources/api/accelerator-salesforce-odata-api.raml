@@ -1,0 +1,66 @@
+#%RAML 1.0
+title: Accelerator Salesforce OData API
+version: v1
+mediaType: application/json
+
+uses:
+  GlobalResources: exchange_modules/997d5e99-287f-4f68-bc95-ed435d7c5797/accelerator-global-resources/2.0.2/accelerator-global-resources.raml
+  ODataTraits: libraries/odataLibrary.raml
+  ODataModel: dataTypes/odata.raml
+
+resourceTypes:
+  collection:
+    is: [ODataTraits.orderby, ODataTraits.top, ODataTraits.skip, ODataTraits.filter, ODataTraits.expand, ODataTraits.format, ODataTraits.select, ODataTraits.inlinecount]
+    get:
+      description: List of <<model | !pluralize>>
+      responses:
+        200:
+          body:
+            application/json:
+              type: <<model>>[]
+    post:
+      description: Create a new <<model>>
+      body:
+        application/json:
+          type: <<model>>
+      responses:
+        200:
+          body:
+            application/json:
+              type: <<model>>
+  member:
+    is: [ODataTraits.filter, ODataTraits.expand, ODataTraits.format, ODataTraits.select]
+    get:
+      description: Read <<model>>
+      responses:
+        200:
+          body:
+            application/json:
+              type: <<model>>
+    delete:
+      description: Delete <<model>>
+      responses:
+        200:
+          body:
+            application/json:
+              type: <<model>>
+    put:
+      description: Update <<model>>
+      body:
+        application/json:
+          type: <<model>>
+      responses:
+        204:
+          body:
+            application/json:
+              type: <<model>>
+
+/ping:
+  get:
+    is: [ GlobalResources.PingResponse ]
+    description: Get the current health status of this API 
+
+/orders:
+  type: { collection: { model: ODataModel.orders } }
+  /{CustomerId}:
+    type: { collection: { model: ODataModel.orders } }

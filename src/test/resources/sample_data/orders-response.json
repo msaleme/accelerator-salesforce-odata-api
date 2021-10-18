@@ -1,0 +1,14 @@
+[
+    {
+        "customerId": "10",
+        "saleorderId": "00000306",
+        "orderNo": "00000306",
+        "saleorderType": "SALES_ORDER",
+        "originalOrder": "00000306",
+        "saleorderStatus": "ORDER_APPROVED",
+        "orderstartDate": "2021-02-02T15:32:53",
+        "orderendDate": null,
+        "promiseDate": null,
+        "filedDate": "2021-02-02T15:32:53"
+    }
+]

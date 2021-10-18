@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:json-logger="http://www.mulesoft.org/schema/mule/json-logger" xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd 
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/json-logger http://www.mulesoft.org/schema/mule/json-logger/current/mule-json-logger.xsd">
+    <flow name="orders_get-orders">
+		<until-successful maxRetries="${retry.http.numRetries}" doc:name="Retry OMS System API Call" doc:id="4cf26877-4e65-42c5-b0ca-d753da8aa8ea" millisBetweenRetries="${retry.http.delayMillisecs}">
+			<try doc:name="Try" doc:id="58d1fc4e-9835-48bb-819e-e8bf185c3d97" >
+				<http:request method="GET" doc:name="Get orders" doc:id="68c8ae5d-cc97-46ea-984a-7953118e320f" config-ref="oms-sys-api-httpRequestConfig" path="/orders">
+					<http:query-params ><![CDATA[#[output application/json skipNullOn="everywhere" 
+---
+{
+	"fromDate" : vars.startDate,
+	"toDate" : vars.endDate,
+	"offset" : floor(vars.skip / vars.top) + 1  ,
+	"limit" : vars.top
+}]]]></http:query-params>
+				</http:request>
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="f74823d1-20d4-40df-8eef-443330df8cd8" type="HTTP:BAD_REQUEST, HTTP:CLIENT_SECURITY, HTTP:CONNECTIVITY, HTTP:FORBIDDEN, HTTP:METHOD_NOT_ALLOWED, HTTP:NOT_ACCEPTABLE, HTTP:NOT_FOUND, HTTP:PARSING, HTTP:RETRY_EXHAUSTED, HTTP:SECURITY, HTTP:UNAUTHORIZED, HTTP:UNSUPPORTED_MEDIA_TYPE">
+						<flow-ref doc:name="common-error-handler_connector-exception" doc:id="d3dc1051-4b1b-4e45-9d75-43b60ae175b2" name="common-error-handler_connector-exception"/>
+					</on-error-continue>
+				</error-handler>
+			</try>
+		</until-successful>
+		<choice doc:name="isError?" doc:id="3383edf1-e108-46b1-9e1d-e224638c326c" >
+			<when expression="#[vars.httpStatus != null]">
+				<ee:transform doc:name="Error Response" doc:id="c342811a-bf66-49c3-8ec6-d4daa9d72a11" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+vars.exceptionResponse]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</when>
+			<otherwise >
+				<ee:transform doc:name="Build Response" doc:id="97c142cf-ae5e-4926-b13b-47cab986042c">
+					<ee:message>
+						<ee:set-payload resource="dwl/build-orders-reponse.dwl" />
+					</ee:message>
+				</ee:transform>
+			</otherwise>
+		</choice>
+    </flow>
+    <flow name="orders_get-orders-by-id">
+		<until-successful maxRetries="${retry.http.numRetries}" doc:name="Retry OMS System API Call" doc:id="9b43ee82-49e5-4697-9906-64a5f2706d59" millisBetweenRetries="${retry.http.delayMillisecs}">
+			<try doc:name="Try" doc:id="505b96a8-edd1-4c85-ae80-f69703dcd857" >
+				<http:request method="GET" doc:name="Get orders by CustomerId" doc:id="f9c917d5-381d-4b32-91d4-969cbf2537a3" config-ref="oms-sys-api-httpRequestConfig" path="/customers/{customerID}/orders" sendCorrelationId="AUTO" correlationId="correlationId">
+					<http:headers ><![CDATA[#[output application/java
+---
+{
+	"Content-Type" : "application/json"
+}]]]></http:headers>
+					<http:uri-params ><![CDATA[#[output application/java
+---
+{
+	"customerID" : vars.CustomerId
+}]]]></http:uri-params>
+					<http:query-params ><![CDATA[#[output application/json skipNullOn="everywhere" 
+---
+{
+	"fromDate" : vars.startDate,
+	"toDate" : vars.endDate
+}]]]></http:query-params>
+				</http:request>
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="54310b7c-4a31-4a49-a206-551815931c14" type="HTTP:BAD_REQUEST, HTTP:CLIENT_SECURITY, HTTP:CONNECTIVITY, HTTP:FORBIDDEN, HTTP:METHOD_NOT_ALLOWED, HTTP:NOT_ACCEPTABLE, HTTP:NOT_FOUND, HTTP:PARSING, HTTP:RETRY_EXHAUSTED, HTTP:SECURITY, HTTP:UNAUTHORIZED, HTTP:UNSUPPORTED_MEDIA_TYPE">
+						<flow-ref doc:name="common-error-handler_connector-exception" doc:id="c4d5af06-9091-4bef-b408-97797b910dfa" name="common-error-handler_connector-exception"/>
+					</on-error-continue>
+				</error-handler>
+			</try>
+		</until-successful>
+		<choice doc:name="isError?" doc:id="7d0064c9-155e-4a31-be66-75c1cbea53f9" >
+			<when expression="#[vars.httpStatus != null]">
+				<ee:transform doc:name="Error Response" doc:id="51329db7-4cb8-468d-b206-7f6387ac4fc8" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+vars.exceptionResponse]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</when>
+			<otherwise >
+				<choice doc:name="isEmpty?" doc:id="00fb9f9d-718a-4ecc-920e-fe485c65915e">
+			<when expression="#[sizeOf(payload) == 0]">
+				<set-variable value="404" doc:name="Set HTTP Status" doc:id="1743b392-a075-4818-b686-7dd41510427c" variableName="httpStatus" />
+				<set-payload doc:name="Set Response" doc:id="e47b2fd2-332a-4a81-ba77-3dfac8d7c264" mimeType="application/json" value='#[{ "message": "Resource not found" }]' />
+			</when>
+			<otherwise>
+						<ee:transform doc:name="Build Response" doc:id="6ba3a336-f401-4f06-979f-d74de3197378" >
+							<ee:message >
+								<ee:set-payload resource="dwl/build-orders-reponse.dwl" />
+							</ee:message>
+						</ee:transform>
+			</otherwise>
+		</choice>
+			</otherwise>
+		</choice>
+    </flow>
+</mule>

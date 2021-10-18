@@ -1,0 +1,37 @@
+# API specification
+api:
+  name: "${project.artifactId}"
+  version: "${project.version}"
+  #Replace with respective autodiscovery id
+  autodiscoveryID: "16422520"
+  
+# Listener configuration
+https:
+  host: "0.0.0.0"
+  port: "8082"
+  
+# API Configurations
+sfdc-odata-api:
+    http-listener:
+      path: "/api/*"
+    http-client:
+      client-id:  "Client Id overridden at deploy time"  
+      client-secret: "Client secret overridden at deploy time"
+
+
+# Retry configuration
+retry:
+   http: 
+    delayMillisecs: "3000"
+    numRetries: "3"
+
+# Calling oms-sys-api to fetch the order status   
+oms-sys-api:
+  #Define desired os key for the job  
+  host: "oms-sys-api-v1-dev.us-e1.cloudhub.io"
+  #host: "localhost"
+  base-path: "/api"
+  port: "443"
+  connection-idle-timeout: "3000"
+  http-frequency: "5000"
+  http-reconnection-attempts: "2"

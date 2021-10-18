@@ -1,0 +1,30 @@
+#%RAML 1.0 NamedExample
+{
+  "responseStatus": "WARNING",
+  "resultMessages": [
+    {
+      "severity": "INFO",
+      "code": "BISACT2100",
+      "message": "The operation completed successfully with one or more warnings"
+    },
+    {
+      "severity": "WARNING",
+      "code": "BISACT1401",
+      "message": "Account title was truncated to the first 20 characters",
+      "parameters": [
+        {
+          "paramName": "AccountId",
+          "paramValue": "10007635"
+        },
+        {
+          "paramName": "OriginalValue",
+          "paramValue": "laboris pariatur amet dolor culpa"
+        },
+        {
+          "paramName": "TruncatedValue",
+          "paramValue": "laboris pariatur ame"
+        }
+      ]
+    }
+  ]
+}

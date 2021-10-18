@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:json-logger="http://www.mulesoft.org/schema/mule/json-logger" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd  http://www.mulesoft.org/schema/mule/json-logger http://www.mulesoft.org/schema/mule/json-logger/current/mule-json-logger.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+    <flow name="sfdc-odata-api_main">
+        <http:listener config-ref="sfdc-odata-api-httpListenerConfig" path="${sfdc-odata-api.http-listener.path}">
+            <http:response statusCode="#[vars.httpStatus default 200]" />
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body><![CDATA[#[payload]]]></http:body>
+            </http:error-response>
+        </http:listener>
+        <apikit:router config-ref="sfdc-odata-api-config" />
+    </flow>
+    <flow name="sfdc-odata-api_console">
+        <http:listener config-ref="sfdc-odata-api-httpListenerConfig" path="/console/*">
+            <http:response statusCode="#[vars.httpStatus default 200]" />
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body><![CDATA[#[payload]]]></http:body>
+            </http:error-response>
+        </http:listener>
+        <apikit:console config-ref="sfdc-odata-api-config" />
+        <error-handler>
+            <on-error-propagate type="APIKIT:BAD_REQUEST">
+                <ee:transform xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Bad request"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">400</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:NOT_FOUND">
+                <ee:transform xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd" doc:id="6b14c1cb-ea90-4017-a2ea-b69a34130047">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Resource not found"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus"><![CDATA[404]]></ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:METHOD_NOT_ALLOWED">
+                <ee:transform xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Method not allowed"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">405</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:NOT_ACCEPTABLE">
+                <ee:transform xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Not acceptable"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">406</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:UNSUPPORTED_MEDIA_TYPE">
+                <ee:transform xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Unsupported media type"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">415</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:NOT_IMPLEMENTED">
+                <ee:transform xsi:schemaLocation=" http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Not Implemented"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">501</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+        </error-handler>
+    </flow>
+    <flow name="get:\orders:sfdc-odata-api-config">
+        <ee:transform doc:name="Set input parameters" doc:id="88016e94-387f-40d4-9c58-4d42160806b3">
+			<ee:variables>
+				<ee:set-variable variableName="CustomerId"><![CDATA[attributes.uriParams.'CustomerId']]></ee:set-variable>
+				<ee:set-variable variableName="startDate"><![CDATA[attributes.queryParams.startDate]]></ee:set-variable>
+				<ee:set-variable variableName="endDate"><![CDATA[attributes.queryParams.endDate]]></ee:set-variable>
+				<ee:set-variable variableName="top"><![CDATA[attributes.queryParams.top default 0]]></ee:set-variable>
+				<ee:set-variable variableName="skip"><![CDATA[attributes.queryParams.skip default 10]]></ee:set-variable>
+				<ee:set-variable variableName="select" ><![CDATA[attributes.queryParams.select]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<flow-ref doc:name="orders_get-orders" doc:id="8a8a095b-adfb-46e8-a453-1f1f6bfc1c3d" name="orders_get-orders" />
+    </flow>
+    <flow name="get:\orders\(CustomerId):sfdc-odata-api-config">
+		<ee:transform doc:name="Set input parameters" doc:id="ab3c3695-9bed-4756-90d4-83864b5983c7">
+			<ee:variables>
+				<ee:set-variable variableName="CustomerId"><![CDATA[attributes.uriParams.'CustomerId']]></ee:set-variable>
+				<ee:set-variable variableName="startDate" ><![CDATA[attributes.queryParams.startDate]]></ee:set-variable>
+				<ee:set-variable variableName="endDate" ><![CDATA[attributes.queryParams.endDate]]></ee:set-variable>
+				<ee:set-variable variableName="select" ><![CDATA[attributes.queryParams.select]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<flow-ref doc:name="orders_get-orders-by-id" doc:id="ebd5d8ff-32e3-4a69-ac0a-1eea3989954a" name="orders_get-orders-by-id" />
+    </flow>
+    <flow name="post:\orders:application\json:sfdc-odata-api-config">
+        <logger level="INFO" message="post:\orders:application\json:sfdc-odata-api-config" />
+		<set-variable value="501" doc:name="httpStatus" doc:id="c164648f-1a76-4c90-b4a3-ac1700345384" variableName="httpStatus"/>
+    </flow>
+    <flow name="post:\orders\(CustomerId):application\json:sfdc-odata-api-config">
+        <ee:transform>
+            <ee:variables>
+                <ee:set-variable variableName="CustomerId">attributes.uriParams.'CustomerId'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <logger level="INFO" message="post:\orders\(CustomerId):application\json:sfdc-odata-api-config" />
+		<set-variable value="501" doc:name="httpStatus" doc:id="a091888c-8c98-411d-8a7b-bb38f0003594" variableName="httpStatus" />
+    </flow>
+    <flow name="get:\ping:sfdc-odata-api-config">
+        <flow-ref doc:name="ping_get-health" doc:id="d2192ae7-b80b-42f1-86e8-a20f6e25c095" name="ping_get-health" />
+    </flow>
+</mule>
